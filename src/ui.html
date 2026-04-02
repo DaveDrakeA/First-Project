@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Accessibility Checker</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: #fff;
+      color: #333;
+      padding: 16px;
+    }
+
+    h1 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: #000;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    button {
+      flex: 1;
+      padding: 10px 12px;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      background: #fff;
+      color: #333;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    button:hover {
+      background: #f5f5f5;
+      border-color: #d0d0d0;
+    }
+
+    button.primary {
+      background: #18a0fb;
+      color: #fff;
+      border-color: #18a0fb;
+    }
+
+    button.primary:hover {
+      background: #0d66d0;
+      border-color: #0d66d0;
+    }
+
+    button.success {
+      background: #1bc47d;
+      color: #fff;
+      border-color: #1bc47d;
+    }
+
+    button.success:hover {
+      background: #0aa362;
+      border-color: #0aa362;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .summary {
+      background: #f5f5f5;
+      border-radius: 4px;
+      padding: 12px;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    .summary.visible {
+      display: block;
+    }
+
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 12px;
+    }
+
+    .summary-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .summary-item-label {
+      color: #666;
+      font-weight: 500;
+    }
+
+    .summary-item-value {
+      font-weight: 600;
+      color: #000;
+    }
+
+    .error-badge {
+      color: #f24822;
+    }
+
+    .warning-badge {
+      color: #ffa500;
+    }
+
+    .info-badge {
+      color: #18a0fb;
+    }
+
+    .issues-list {
+      max-height: 350px;
+      overflow-y: auto;
+      margin-bottom: 16px;
+    }
+
+    .issue-item {
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      padding: 12px;
+      margin-bottom: 8px;
+      background: #fafafa;
+    }
+
+    .issue-item.error {
+      border-left: 4px solid #f24822;
+      background: #fff5f3;
+    }
+
+    .issue-item.warning {
+      border-left: 4px solid #ffa500;
+      background: #fffaf0;
+    }
+
+    .issue-item.info {
+      border-left: 4px solid #18a0fb;
+      background: #f0f8ff;
+    }
+
+    .issue-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 8px;
+    }
+
+    .issue-title {
+      font-weight: 600;
+      font-size: 12px;
+      flex: 1;
+    }
+
+    .issue-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 2px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-left: 8px;
+    }
+
+    .issue-badge.error {
+      background: #f24822;
+      color: #fff;
+    }
+
+    .issue-badge.warning {
+      background: #ffa500;
+      color: #fff;
+    }
+
+    .issue-badge.info {
+      background: #18a0fb;
+      color: #fff;
+    }
+
+    .issue-message {
+      font-size: 11px;
+      color: #666;
+      margin-bottom: 6px;
+      line-height: 1.4;
+    }
+
+    .issue-guideline {
+      font-size: 10px;
+      color: #999;
+      font-style: italic;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 24px 12px;
+      color: #999;
+      font-size: 12px;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 16px;
+      color: #999;
+      font-size: 12px;
+    }
+
+    .error-message {
+      background: #fff5f3;
+      border: 1px solid #f24822;
+      border-radius: 4px;
+      padding: 12px;
+      color: #f24822;
+      font-size: 12px;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    .error-message.visible {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <h1>Accessibility Checker</h1>
+  
+  <div class="error-message" id="errorMessage"></div>
+  
+  <div class="button-group">
+    <button id="checkBtn" class="primary">Check Accessibility</button>
+    <button id="suggestBtn" disabled>Generate Suggestions</button>
+  </div>
+
+  <div class="summary" id="summary">
+    <div class="summary-item">
+      <span class="summary-item-label">Total Issues:</span>
+      <span class="summary-item-value" id="totalIssues">0</span>
+    </div>
+    <div class="summary-item">
+      <span class="summary-item-label">
+        <span class="error-badge">Errors:</span>
+      </span>
+      <span class="summary-item-value error-badge" id="errorCount">0</span>
+    </div>
+    <div class="summary-item">
+      <span class="summary-item-label">
+        <span class="warning-badge">Warnings:</span>
+      </span>
+      <span class="summary-item-value warning-badge" id="warningCount">0</span>
+    </div>
+    <div class="summary-item">
+      <span class="summary-item-label">
+        <span class="info-badge">Info:</span>
+      </span>
+      <span class="summary-item-value info-badge" id="infoCount">0</span>
+    </div>
+  </div>
+
+  <div class="button-group" id="fixButtonGroup" style="display: none;">
+    <button id="applyAllBtn" class="success">Apply All Fixes</button>
+  </div>
+
+  <div class="issues-list" id="issuesList">
+    <div class="empty-state">Run an accessibility check to get started</div>
+  </div>
+
+  <script src="ui.js"></script>
+</body>
+</html>

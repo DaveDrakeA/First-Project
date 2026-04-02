@@ -1,0 +1,1 @@
+{"name":"Accessibility Checker","id":"figma-accessibility-checker","api":"1.0.0","main":"dist/main.js","ui":"dist/ui.html","permissions":["currentpage"],"documentAccess":"dynamic","editorType":["figma","figjam"]}
